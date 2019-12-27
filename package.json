@@ -1,0 +1,22 @@
+{
+  "name": "screen-to-text",
+  "version": "1.0.0",
+  "description": "An electron mini app to help you copy texts from screenshots",
+  "main": "dist/main.js",
+  "scripts": {
+    "start": "npm run build & electron .",
+    "build": "tsc",
+    "test": "jest"
+  },
+  "author": "Zhiyue Yi",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "ts-node": "^8.5.4",
+    "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "electron": "^7.1.7",
+    "tesseract.js": "^2.0.1"
+  }
+}
