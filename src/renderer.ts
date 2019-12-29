@@ -1,13 +1,18 @@
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
 import electron, { desktopCapturer, shell } from 'electron';
 import Tesseract from 'tesseract.js';
 
-const screenshot = document.getElementById('screenshot');
-const screenshotMsg = document.getElementById('screenshot-path');
 const screen = electron.screen || electron.remote.screen;
 
-screenshot!.addEventListener('click', async () => {
+const screenshotBtn = document.getElementById('screenshot-btn');
+const indicator = document.getElementById('indicator');
+const progressBar = document.getElementById('progress') as HTMLProgressElement;
+
+screenshotBtn!.addEventListener('click', async () => {
   try {
-    screenshotMsg!.textContent = 'Gathering screens...';
+    indicator!.textContent = 'Gathering screens...';
     const thumbSize = determineScreenShot(
       screen.getPrimaryDisplay().workAreaSize,
       window.devicePixelRatio,
@@ -23,15 +28,23 @@ screenshot!.addEventListener('click', async () => {
           {
             logger: m => {
               console.log(m);
-              const progress = (
-                Math.round(m.progress * 10000) / 100
-              ).toString();
-              screenshotMsg!.textContent = `Status: ${m.status} Progress: ${progress}`;
+              const progress = Math.round(m.progress * 10000) / 100;
+
+              progressBar!.value = progress;
+
+              indicator!.textContent = `Status: ${
+                m.status
+              }\n Progress: ${progress.toString()}%`;
             },
           },
         );
 
-        screenshotMsg!.textContent = result.data.text;
+        const tmpPath = path.join(os.tmpdir(), 'screenshot-text.txt');
+
+        fs.writeFileSync(path.join(tmpPath), result.data.text);
+
+        shell.openItem(tmpPath);
+        indicator!.textContent = 'Completed!';
       }
     });
   } catch (error) {

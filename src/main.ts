@@ -5,6 +5,10 @@ let appIsReady = false;
 
 function createWindow() {
   win = new BrowserWindow({
+    height: 80,
+    width: 800,
+    transparent: true,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -12,7 +16,7 @@ function createWindow() {
 
   win.loadFile('./index.html');
 
-  win.webContents.openDevTools();
+  //win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
