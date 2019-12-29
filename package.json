@@ -2,14 +2,14 @@
   "name": "screen-to-text",
   "version": "1.0.0",
   "description": "An electron mini app to help you copy texts from screenshots",
-  "main": "main.js",
+  "main": "main/main.js",
   "scripts": {
     "start": "npm-run-all --serial delete:dist build copy start:electron",
     "start:electron": "electron dist",
     "build": "tsc",
     "test": "jest",
     "copy": "npm-run-all --parallel copy:package copy:views",
-    "copy:views": "cpx src/index.html dist",
+    "copy:views": "cpx src/**/*.html dist",
     "copy:package": "cpx package.json dist",
     "delete:dist": "rimraf dist"
   },

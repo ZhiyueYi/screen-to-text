@@ -1,9 +1,13 @@
+import path from 'path';
 import { app, BrowserWindow } from 'electron';
+import { initScreenCapturer } from '../screen-capturer/main';
 
 let win: BrowserWindow | null;
 let appIsReady = false;
 
 function createWindow() {
+  initScreenCapturer();
+
   win = new BrowserWindow({
     height: 80,
     width: 800,
@@ -14,7 +18,7 @@ function createWindow() {
     },
   });
 
-  win.loadFile('./index.html');
+  win.loadFile(path.join(__dirname, 'index.html'));
 
   //win.webContents.openDevTools();
 

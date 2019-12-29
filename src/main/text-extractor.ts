@@ -1,16 +1,15 @@
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
-import electron, { desktopCapturer, shell } from 'electron';
 import Tesseract from 'tesseract.js';
+import electron, { desktopCapturer, shell, ipcRenderer } from 'electron';
 
 const screen = electron.screen || electron.remote.screen;
 
-const screenshotBtn = document.getElementById('screenshot-btn');
 const indicator = document.getElementById('indicator');
 const progressBar = document.getElementById('progress') as HTMLProgressElement;
 
-screenshotBtn!.addEventListener('click', async () => {
+export async function extractText() {
   try {
     indicator!.textContent = 'Gathering screens...';
     const thumbSize = determineScreenShot(
@@ -50,7 +49,7 @@ screenshotBtn!.addEventListener('click', async () => {
   } catch (error) {
     console.log(error);
   }
-});
+}
 
 function determineScreenShot(
   screenSize: electron.Size,
