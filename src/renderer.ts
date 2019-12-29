@@ -1,7 +1,5 @@
-import fs from 'fs';
-import os from 'os';
-import path from 'path';
 import electron, { desktopCapturer, shell } from 'electron';
+import Tesseract from 'tesseract.js';
 
 const screenshot = document.getElementById('screenshot');
 const screenshotMsg = document.getElementById('screenshot-path');
@@ -19,14 +17,21 @@ screenshot!.addEventListener('click', async () => {
     const sources = await desktopCapturer.getSources(options);
     sources.forEach(async source => {
       if (source.name === 'Entire Screen' || source.name === 'Screen 1') {
-        const screenshotPath = path.join(os.tmpdir(), 'screenshot.png');
+        const result = await Tesseract.recognize(
+          source.thumbnail.toPNG(),
+          'eng',
+          {
+            logger: m => {
+              console.log(m);
+              const progress = (
+                Math.round(m.progress * 10000) / 100
+              ).toString();
+              screenshotMsg!.textContent = `Status: ${m.status} Progress: ${progress}`;
+            },
+          },
+        );
 
-        await fs.writeFileSync(screenshotPath, source.thumbnail.toPNG());
-
-        shell.openExternal('file://' + screenshotPath);
-
-        const message = `Saved screenshot to: ${screenshotPath}`;
-        screenshotMsg!.textContent = message;
+        screenshotMsg!.textContent = result.data.text;
       }
     });
   } catch (error) {

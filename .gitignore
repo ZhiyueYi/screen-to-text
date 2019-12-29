@@ -102,3 +102,6 @@ public
 
 # Dist
 dist/
+
+# Tesseract.js trained data
+eng.traineddata
