@@ -1,27 +1,28 @@
 import { app, BrowserWindow } from 'electron';
 
 let win: BrowserWindow | null;
+let appIsReady = false;
 
 function createWindow() {
   win = new BrowserWindow({
-    useContentSize: true,
-    transparent: true,
-    frame: false,
     webPreferences: {
       nodeIntegration: true,
     },
   });
 
-  win.loadFile('src/index.html');
+  win.loadFile('./index.html');
 
-  //win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
   });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+  appIsReady = true;
+  createWindow();
+});
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -30,7 +31,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-  if (win === null) {
+  if (!win && appIsReady) {
     createWindow();
   }
 });
