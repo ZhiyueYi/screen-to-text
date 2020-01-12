@@ -15,6 +15,9 @@ export class Cropper {
     $app.appendChild(this.ref);
   }
 
+  /**
+   * Initial 8 adjusters
+   */
   initAdjusters() {
     const imageCropperInner = document.createElement('div');
     imageCropperInner.classList.add('image-cropper-inner');
@@ -30,14 +33,28 @@ export class Cropper {
     this.ref.appendChild(imageCropperInner);
   }
 
+  /**
+   * Listen to shifting cropper position event
+   */
   listenToShift() {
     this.listen(this.ref, ListenType.Shift);
   }
 
-  listenToAdjust(listener: HTMLElement, position: Position) {
-    this.listen(listener, ListenType.Adjust, position);
+  /**
+   * Listen to adjusting cropper size event
+   * @param adjuster the individual adjuster of the event
+   * @param position the position of the adjuster
+   */
+  listenToAdjust(adjuster: HTMLElement, position: Position) {
+    this.listen(adjuster, ListenType.Adjust, position);
   }
 
+  /**
+   * Listen to certain event and adjust the size and position of the cropper
+   * @param listener the particular HTMLElement which listens mouse events
+   * @param listenType the type of the listening event
+   * @param positionType optional. The position of the listener (only adjuster has position)
+   */
   listen(
     listener: HTMLElement,
     listenType: ListenType,
@@ -82,21 +99,38 @@ export class Cropper {
     });
   }
 
+  /**
+   * Set an initial starting point when there is no cropper
+   * @param e MouseEvent
+   */
   start(e: MouseEvent) {
     this.startCoordinator = { x: e.clientX, y: e.clientY };
     this.endCoordinator = { x: e.clientX, y: e.clientY };
     this.refresh();
   }
 
+  /**
+   * Update the end coordinator every time when there is a new mouse event
+   * @param e MouseEvent
+   */
   move(e: MouseEvent) {
     this.endCoordinator = { x: e.clientX, y: e.clientY };
     this.refresh();
   }
 
+  /**
+   * Triggers when the cropper intialisation stops.
+   * @param e MouseEvent
+   */
   stop(e: MouseEvent) {
     this.move(e);
   }
 
+  /**
+   * Handles the shifting of the cropper
+   * @param start the start coordinate
+   * @param stop the end coordinate
+   */
   shift(start: Coordinate, stop: Coordinate) {
     const movementX = stop.x - start.x;
     const movementY = stop.y - start.y;
@@ -110,6 +144,12 @@ export class Cropper {
     this.refresh();
   }
 
+  /**
+   * Handles the adjustments of the size of the cropper
+   * @param start the start coordinate
+   * @param stop the end coordinate
+   * @param position the position of the adjuster
+   */
   adjust(start: Coordinate, stop: Coordinate, position: Position) {
     const movementX = stop.x - start.x;
     const movementY = stop.y - start.y;
@@ -171,6 +211,9 @@ export class Cropper {
     this.ref.style.height = `${height}px`;
   }
 
+  /**
+   * Refresh the cropper's styles so that it is displayed at the right place
+   */
   refresh() {
     const left = Math.min(this.startCoordinator.x, this.endCoordinator.x);
     const right = Math.max(this.startCoordinator.x, this.endCoordinator.x);
