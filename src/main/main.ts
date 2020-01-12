@@ -1,5 +1,5 @@
 import path from 'path';
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, ipcMain } from 'electron';
 import { initScreenCapturer } from '../screen-capturer/main';
 
 let win: BrowserWindow | null;
@@ -20,10 +20,14 @@ function createWindow() {
 
   win.loadFile(path.join(__dirname, 'index.html'));
 
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;
+  });
+
+  ipcMain.on('complete-capture', (_, args) => {
+    win.webContents.send('complete-capture', args);
   });
 }
 

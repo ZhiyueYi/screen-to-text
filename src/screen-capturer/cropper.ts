@@ -1,43 +1,70 @@
 import { Coordinate, Position, ListenType } from './../constants';
+import electron, { ipcRenderer, desktopCapturer } from 'electron';
+import { determineScreenShot } from '../utils';
+
+const screen = electron.screen || electron.remote.screen;
 
 export class Cropper {
-  private ref: HTMLElement;
+  private refCropper: HTMLDivElement;
+  private refCanvas: HTMLCanvasElement;
+  private refInner: HTMLDivElement;
   private startCoordinator: Coordinate = new Coordinate();
   private endCoordinator: Coordinate = new Coordinate();
 
   constructor($app: HTMLElement) {
-    this.ref = document.createElement('div');
-    this.ref.classList.add('image-cropper');
+    this.refCropper = document.createElement('div');
+    this.refCropper.classList.add('image-cropper');
 
     this.initAdjusters();
+    this.initButtons();
+    this.initCanvas();
     this.listenToShift();
 
-    $app.appendChild(this.ref);
+    $app.appendChild(this.refCropper);
   }
 
   /**
    * Initial 8 adjusters
    */
   initAdjusters() {
-    const imageCropperInner = document.createElement('div');
-    imageCropperInner.classList.add('image-cropper-inner');
+    this.refInner = document.createElement('div');
+    this.refInner.classList.add('image-cropper-inner');
 
     Object.keys(Position).forEach(key => {
       const adjuster = document.createElement('div');
       const position = Position[key as keyof typeof Position];
       adjuster.classList.add('adjuster', position);
       this.listenToAdjust(adjuster, position);
-      imageCropperInner.appendChild(adjuster);
+      this.refInner.appendChild(adjuster);
     });
 
-    this.ref.appendChild(imageCropperInner);
+    this.refCropper.appendChild(this.refInner);
+  }
+
+  initCanvas() {
+    this.refCanvas = document.createElement('canvas');
+    this.refInner.appendChild(this.refCanvas);
+  }
+
+  initButtons() {
+    const buttonComplete = document.createElement('button');
+    buttonComplete.innerText = 'Done';
+    buttonComplete.addEventListener('click', async () => {
+      ipcRenderer.send('complete-capture', await this.toImage());
+    });
+
+    const buttonWrapper = document.createElement('div');
+    buttonWrapper.classList.add('button-wrapper');
+    buttonWrapper.appendChild(buttonComplete);
+
+    this.refInner.appendChild(buttonWrapper);
   }
 
   /**
    * Listen to shifting cropper position event
    */
   listenToShift() {
-    this.listen(this.ref, ListenType.Shift);
+    this.listen(this.refCropper, ListenType.Shift);
   }
 
   /**
@@ -153,10 +180,10 @@ export class Cropper {
   adjust(start: Coordinate, stop: Coordinate, position: Position) {
     const movementX = stop.x - start.x;
     const movementY = stop.y - start.y;
-    let top = parseInt(this.ref.style.top, 10);
-    let left = parseInt(this.ref.style.left, 10);
-    let width = parseInt(this.ref.style.width, 10);
-    let height = parseInt(this.ref.style.height, 10);
+    let top = parseInt(this.refCropper.style.top, 10);
+    let left = parseInt(this.refCropper.style.left, 10);
+    let width = parseInt(this.refCropper.style.width, 10);
+    let height = parseInt(this.refCropper.style.height, 10);
 
     switch (position) {
       case Position.TOP:
@@ -205,10 +232,12 @@ export class Cropper {
       y: top + height,
     };
 
-    this.ref.style.top = `${top}px`;
-    this.ref.style.left = `${left}px`;
-    this.ref.style.width = `${width}px`;
-    this.ref.style.height = `${height}px`;
+    this.refCropper.style.top = `${top}px`;
+    this.refCropper.style.left = `${left}px`;
+    this.refCropper.style.width = `${width}px`;
+    this.refCropper.style.height = `${height}px`;
+
+    this.resizeCanvas();
   }
 
   /**
@@ -222,9 +251,53 @@ export class Cropper {
     const height = bottom - top;
     const width = right - left;
 
-    this.ref.style.top = `${top}px`;
-    this.ref.style.left = `${left}px`;
-    this.ref.style.width = `${width}px`;
-    this.ref.style.height = `${height}px`;
+    this.refCropper.style.top = `${top}px`;
+    this.refCropper.style.left = `${left}px`;
+    this.refCropper.style.width = `${width}px`;
+    this.refCropper.style.height = `${height}px`;
+
+    this.resizeCanvas();
+  }
+
+  resizeCanvas() {
+    this.refCanvas.height = this.refInner.clientHeight;
+    this.refCanvas.width = this.refInner.clientWidth;
+  }
+
+  async toImage() {
+    const thumbSize = determineScreenShot(
+      screen.getPrimaryDisplay().workAreaSize,
+      window.devicePixelRatio,
+    );
+
+    const options = { types: ['screen'], thumbnailSize: thumbSize };
+
+    const sources = await desktopCapturer.getSources(options);
+    sources.forEach(async source => {
+      if (source.name === 'Entire Screen' || source.name === 'Screen 1') {
+        const img = new Image();
+        img.style.display = 'none';
+        img.id = 'screenshot';
+        img.src = source.thumbnail.toDataURL();
+
+        document.body.appendChild(img);
+
+        this.refCanvas
+          .getContext('2d')
+          .drawImage(
+            document.getElementById('screenshot') as HTMLImageElement,
+            this.startCoordinator.x,
+            this.startCoordinator.y,
+            this.endCoordinator.x - this.startCoordinator.x,
+            this.endCoordinator.y - this.startCoordinator.y,
+            0,
+            0,
+            this.endCoordinator.x - this.startCoordinator.x,
+            this.endCoordinator.y - this.startCoordinator.y,
+          );
+      }
+    });
+
+    return this.refCropper.querySelector('canvas').toDataURL();
   }
 }

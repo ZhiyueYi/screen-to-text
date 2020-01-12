@@ -5,5 +5,8 @@ const screenshotBtn = document.getElementById('screenshot-btn');
 
 screenshotBtn!.addEventListener('click', async () => {
   ipcRenderer.send('capture-screen');
-  //extractText();
+});
+
+ipcRenderer.on('complete-capture', (_, args) => {
+  extractText(args);
 });
