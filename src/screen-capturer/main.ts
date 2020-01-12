@@ -49,6 +49,9 @@ const createWindow = () => {
       resizable: false,
       enableLargerThanScreen: true,
       hasShadow: false,
+      webPreferences: {
+        nodeIntegration: true,
+      },
     });
     captureWin.setAlwaysOnTop(true, 'screen-saver');
     captureWin.setVisibleOnAllWorkspaces(true);
@@ -67,7 +70,8 @@ const createWindow = () => {
     } else {
       captureWin.blur();
     }
-    // captureWin.openDevTools()
+
+    // captureWin.webContents.openDevTools();
 
     captureWin.on('closed', () => {
       const index = captureWins.indexOf(captureWin);

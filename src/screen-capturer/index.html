@@ -14,6 +14,10 @@
         box-sizing: border-box;
       }
 
+      body {
+        height: 100vh;
+      }
+
       .mask {
         position: absolute;
         top: 0;
@@ -67,6 +71,57 @@
         font-size: 24px;
         padding: 2px 5px;
       }
+
+      /* For Cropper */
+      .image-cropper {
+        position: absolute;
+        border: 1px solid darkgrey;
+      }
+      .image-cropper-inner {
+        height: 100%;
+        width: 100%;
+        position: relative;
+      }
+      .adjuster {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        border: 1px solid #09f;
+        background-color: white;
+        cursor: pointer;
+      }
+      .adjuster.top {
+        top: -5px;
+        left: calc(50% - 10px);
+      }
+      .adjuster.bottom {
+        bottom: -5px;
+        left: calc(50% - 5px);
+      }
+      .adjuster.left {
+        top: calc(50% - 5px);
+        left: -5px;
+      }
+      .adjuster.right {
+        top: calc(50% - 5px);
+        right: -5px;
+      }
+      .adjuster.topLeft {
+        top: -5px;
+        left: -5px;
+      }
+      .adjuster.topRight {
+        top: -5px;
+        right: -5px;
+      }
+      .adjuster.bottomLeft {
+        bottom: -5px;
+        left: -5px;
+      }
+      .adjuster.bottomRight {
+        bottom: -5px;
+        right: -5px;
+      }
     </style>
   </head>
 
@@ -81,6 +136,8 @@
       <div class="icon" id="tool-close"></div>
       <div class="icon" id="tool-ok"></div>
     </div>
-    <script src="./renderer.js"></script>
+    <script>
+      require('./renderer.js');
+    </script>
   </body>
 </html>

@@ -20,7 +20,7 @@ function createWindow() {
 
   win.loadFile(path.join(__dirname, 'index.html'));
 
-  //win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   win.on('closed', () => {
     win = null;

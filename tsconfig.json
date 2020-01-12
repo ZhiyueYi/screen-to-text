@@ -2,13 +2,14 @@
   "compilerOptions": {
     "target": "es5",
     "module": "commonjs",
-    "lib": ["es6", "es2015", "dom"],
+    "lib": ["es5", "es6", "es2015", "dom"],
     "declaration": true,
     "outDir": "dist",
     "rootDir": "src",
     "strict": true,
     "types": ["node", "jest"],
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "strictNullChecks": false
   }
 }
