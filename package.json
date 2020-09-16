@@ -24,7 +24,7 @@
     "typescript": "^3.7.4"
   },
   "dependencies": {
-    "electron": "^7.1.7",
+    "electron": "^7.2.4",
     "tesseract.js": "^2.0.1"
   }
 }
